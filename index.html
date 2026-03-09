@@ -282,6 +282,7 @@ body {
   overflow-x: auto;
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
+  white-space: pre-wrap;
 }
 
 .math-block sub, .math-block sup { font-size: 0.75em; line-height: 0; position: relative; }
@@ -426,7 +427,11 @@ body {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-top: 0.8rem;
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 
 .helix-btn {
@@ -543,9 +548,9 @@ body {
     <div class="helix-container reveal">
       <canvas id="helix-canvas"></canvas>
       <div class="helix-controls">
-        <button class="helix-btn active" onclick="setHelixMode('left')">Left-handed</button>
-        <button class="helix-btn" onclick="setHelixMode('right')">Right-handed</button>
-        <button class="helix-btn" onclick="setHelixMode('linear')">Linear</button>
+        <button class="helix-btn active" data-mode="left">Left-handed</button>
+        <button class="helix-btn" data-mode="right">Right-handed</button>
+        <button class="helix-btn" data-mode="linear">Linear</button>
       </div>
     </div>
 
@@ -607,9 +612,9 @@ body {
     <p class="reveal">A massive particle moves slower than light. An observer can overtake it. In that boosted frame the momentum reverses but the spin does not. The helicity flips. What was left-handed becomes right-handed. For massive particles, helicity is an accident of perspective, not an intrinsic property.</p>
 
     <div class="math-block reveal">
-      h = sign(J⃗ · p⃗)
+      h  =  sign( <strong>J</strong> · <strong>p</strong> )
 
-      For massless particles: no boost can reverse p⃗
+      For massless particles: no boost can reverse <strong>p</strong>
       → helicity is Lorentz invariant
       → helicity ≡ chirality
     </div>
@@ -748,8 +753,9 @@ let helixTime = 0;
 
 function setHelixMode(mode) {
   helixMode = mode;
-  document.querySelectorAll('.helix-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  document.querySelectorAll('.helix-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
 }
 
 function drawHelix() {
@@ -758,89 +764,109 @@ function drawHelix() {
   hCtx.clearRect(0, 0, W, H);
   
   const cy = H / 2;
-  const amp = H * 0.3;
+  const amp = H * 0.28;
   const waveLen = W * 0.25;
   const k = 2 * Math.PI / waveLen;
+  const startX = 50;
+  const endX = W - 50;
+  const steps = 400;
   
-  helixTime += 0.004;
+  helixTime += 0.006;
+  const omega = helixTime * 8;
   
-  // Draw propagation axis
-  hCtx.strokeStyle = 'rgba(200,190,170,0.08)';
+  // Propagation axis
+  hCtx.strokeStyle = 'rgba(200,190,170,0.06)';
   hCtx.lineWidth = 1;
   hCtx.setLineDash([8, 8]);
   hCtx.beginPath();
-  hCtx.moveTo(40, cy);
-  hCtx.lineTo(W - 40, cy);
+  hCtx.moveTo(startX, cy);
+  hCtx.lineTo(endX, cy);
   hCtx.stroke();
   hCtx.setLineDash([]);
   
-  // E-field and B-field
-  const steps = 300;
-  const startX = 40;
-  const endX = W - 40;
-  
-  for (let pass = 0; pass < 2; pass++) {
-    hCtx.beginPath();
-    hCtx.lineWidth = pass === 0 ? 2.5 : 1.5;
-    hCtx.strokeStyle = pass === 0 ? 'rgba(196,93,74,0.8)' : 'rgba(74,142,196,0.5)';
-    
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const x = startX + t * (endX - startX);
-      const phase = k * (x) - helixTime * 12;
-      
-      let yOff;
-      if (helixMode === 'linear') {
-        yOff = Math.sin(phase) * amp * (pass === 0 ? 1 : 0.6);
-        if (pass === 1) {
-          // B perpendicular - show as reduced opacity same plane for 2D
-          yOff = Math.cos(phase) * amp * 0.4;
-        }
-      } else {
-        const sign = helixMode === 'left' ? 1 : -1;
-        if (pass === 0) {
-          yOff = Math.sin(phase) * amp;
-        } else {
-          yOff = Math.cos(phase * sign) * amp * 0.6;
-        }
-      }
-      
-      if (i === 0) hCtx.moveTo(x, cy + yOff);
-      else hCtx.lineTo(x, cy + yOff);
+  // Compute E and B offsets per mode
+  function getFields(x) {
+    const phi = k * x - omega;
+    let Ey, By;
+    if (helixMode === 'linear') {
+      // Linear: E and B in phase, same plane (2D projection)
+      Ey = Math.sin(phi) * amp;
+      By = Math.cos(phi) * amp * 0.5;
+    } else if (helixMode === 'left') {
+      // Left circular: E leads B by 90° (B = sin, E = cos gives left-hand screw)
+      Ey = Math.cos(phi) * amp;
+      By = Math.sin(phi) * amp * 0.6;
+    } else {
+      // Right circular: E lags B by 90°
+      Ey = Math.cos(phi) * amp;
+      By = -Math.sin(phi) * amp * 0.6;
     }
-    hCtx.stroke();
+    return { Ey, By };
   }
   
-  // Draw small arrows along E field
-  for (let i = 0; i < 16; i++) {
-    const t = (i + 0.5) / 16;
+  // Draw field lines
+  // B-field first (behind)
+  hCtx.beginPath();
+  hCtx.lineWidth = 1.8;
+  hCtx.strokeStyle = 'rgba(74,142,196,0.45)';
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
     const x = startX + t * (endX - startX);
-    const phase = k * x - helixTime * 12;
-    let yOff;
-    if (helixMode === 'linear') {
-      yOff = Math.sin(phase) * amp;
-    } else {
-      yOff = Math.sin(phase) * amp;
-    }
-    
-    hCtx.strokeStyle = 'rgba(196,93,74,0.25)';
+    const { By } = getFields(x);
+    if (i === 0) hCtx.moveTo(x, cy + By);
+    else hCtx.lineTo(x, cy + By);
+  }
+  hCtx.stroke();
+  
+  // E-field (front)
+  hCtx.beginPath();
+  hCtx.lineWidth = 2.5;
+  hCtx.strokeStyle = 'rgba(196,93,74,0.85)';
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const x = startX + t * (endX - startX);
+    const { Ey } = getFields(x);
+    if (i === 0) hCtx.moveTo(x, cy + Ey);
+    else hCtx.lineTo(x, cy + Ey);
+  }
+  hCtx.stroke();
+  
+  // Field vector indicators (vertical lines from axis to E curve)
+  for (let i = 0; i < 20; i++) {
+    const t = (i + 0.5) / 20;
+    const x = startX + t * (endX - startX);
+    const { Ey } = getFields(x);
+    hCtx.strokeStyle = 'rgba(196,93,74,0.18)';
     hCtx.lineWidth = 1;
     hCtx.beginPath();
     hCtx.moveTo(x, cy);
-    hCtx.lineTo(x, cy + yOff);
+    hCtx.lineTo(x, cy + Ey);
     hCtx.stroke();
   }
   
+  // Mode label
+  hCtx.font = `${12 * 2}px 'JetBrains Mono', monospace`;
+  hCtx.fillStyle = 'rgba(200,190,170,0.25)';
+  hCtx.textAlign = 'right';
+  const modeText = helixMode === 'left' ? 'LEFT CIRCULAR' : helixMode === 'right' ? 'RIGHT CIRCULAR' : 'LINEAR';
+  hCtx.fillText(modeText, endX, 40);
+  
   // Labels
-  hCtx.font = `${14 * 2}px JetBrains Mono`;
+  hCtx.textAlign = 'left';
+  hCtx.font = `${14 * 2}px 'JetBrains Mono', monospace`;
   hCtx.fillStyle = 'rgba(196,93,74,0.6)';
-  hCtx.fillText('E', 50, cy - amp - 10);
+  hCtx.fillText('E', startX, cy - amp - 12);
   hCtx.fillStyle = 'rgba(74,142,196,0.4)';
-  hCtx.fillText('B', 50, cy + amp + 30);
+  hCtx.fillText('B', startX, cy + amp + 28);
   
   requestAnimationFrame(drawHelix);
 }
 drawHelix();
+
+// Button listeners
+document.querySelectorAll('.helix-btn').forEach(btn => {
+  btn.addEventListener('click', () => setHelixMode(btn.dataset.mode));
+});
 
 
 // ── MIND MAP ──
@@ -876,7 +902,7 @@ const nodes = [
   { id: 'neutrino', x: 0.2, y: 0.25, r: 26, label: 'ν (neutrino)', color: '#9b7acc',
     desc: 'Always produced left-handed in weak decays. Described by Weyl spinors. Neutrino oscillations imply small mass, but the chirality of the weak coupling remains absolute.' },
   { id: 'helicity', x: 0.8, y: 0.25, r: 26, label: 'Helicity', color: '#4a8ec4',
-    desc: 'Sign of J⃗·p⃗. Frame-dependent for massive particles (a Lorentz boost can reverse p). Lorentz invariant for massless particles. Flips under parity.' },
+    desc: 'Sign of J·p. Frame-dependent for massive particles (a Lorentz boost can reverse p). Lorentz invariant for massless particles. Flips under parity.' },
   { id: 'parity', x: 0.82, y: 0.42, r: 22, label: 'Parity (P)', color: '#c45d4a',
     desc: 'Spatial inversion: x → −x. Not conserved in weak interactions (Wu experiment, 1957). Momentum is a polar vector and flips; angular momentum is axial and does not.' },
   { id: 'cpt', x: 0.18, y: 0.42, r: 24, label: 'CPT', color: '#c4a24a',
@@ -1062,4 +1088,5 @@ drawMap();
 </script>
 </body>
 </html>
+
 

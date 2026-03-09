@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Left-Handed Signature — Chirality from Flesh to Field</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0b0f;
+  --bg-section: #0e1017;
+  --bg-card: #141620;
+  --text-primary: #e8e4dc;
+  --text-secondary: #9a958a;
+  --text-dim: #5a564e;
+  --accent-left: #c45d4a;
+  --accent-right: #4a8ec4;
+  --accent-gold: #c4a24a;
+  --accent-weak: #7b4ac4;
+  --accent-strong: #4ac48a;
+  --accent-em: #c4884a;
+  --border-subtle: rgba(200, 190, 170, 0.08);
+  --helix-gradient: linear-gradient(135deg, var(--accent-left), var(--accent-right));
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(196,93,74,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-helix {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.hero-helix svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  text-align: center;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin-bottom: 1.2rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeUp 1.2s ease-out 0.3s forwards;
+}
+
+.hero-title .left-mark {
+  color: var(--accent-left);
+  font-style: italic;
+}
+
+.hero-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 300;
+  font-size: 0.78rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeUp 1.2s ease-out 0.7s forwards;
+}
+
+.hero-scroll-cue {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0;
+  animation: fadeUp 1s ease-out 1.4s forwards, pulse 3s ease-in-out 2.4s infinite;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* ── NAVIGATION ── */
+.layer-nav {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.layer-nav.visible { opacity: 1; }
+
+.layer-nav a {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: all 0.3s;
+  position: relative;
+}
+
+.layer-nav a.active {
+  background: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(196,162,74,0.4);
+  transform: scale(1.4);
+}
+
+.layer-nav a .nav-label {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.layer-nav a:hover .nav-label { opacity: 1; }
+
+/* ── SECTIONS ── */
+.layer {
+  min-height: 100vh;
+  padding: 6rem 2rem;
+  position: relative;
+}
+
+.layer-inner {
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+.layer-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  padding-left: 2px;
+}
+
+.layer-tag .tag-accent { color: var(--accent-gold); }
+
+.layer h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.25;
+  margin-bottom: 2rem;
+  letter-spacing: 0.01em;
+}
+
+.layer p {
+  margin-bottom: 1.4rem;
+  color: var(--text-secondary);
+}
+
+.layer p:first-of-type::first-letter {
+  font-size: 2.4em;
+  float: left;
+  line-height: 1;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.layer p em {
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+.layer p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── INLINE BOXES / ASIDES ── */
+.aside-box {
+  border-left: 2px solid var(--border-subtle);
+  padding: 1.2rem 1.5rem;
+  margin: 2rem 0;
+  background: var(--bg-card);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.92em;
+}
+
+.aside-box.left-accent { border-left-color: var(--accent-left); }
+.aside-box.right-accent { border-left-color: var(--accent-right); }
+.aside-box.weak-accent { border-left-color: var(--accent-weak); }
+.aside-box.gold-accent { border-left-color: var(--accent-gold); }
+.aside-box.strong-accent { border-left-color: var(--accent-strong); }
+
+.aside-box .aside-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.6rem;
+}
+
+.aside-box p { color: var(--text-secondary); margin-bottom: 0.6rem; }
+.aside-box p:last-child { margin-bottom: 0; }
+.aside-box p:first-of-type::first-letter {
+  font-size: inherit; float: none; margin: 0; color: inherit; font-weight: inherit;
+}
+
+/* ── MATH ── */
+.math-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  background: var(--bg-card);
+  padding: 1.2rem 1.5rem;
+  border-radius: 6px;
+  margin: 1.8rem 0;
+  overflow-x: auto;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.math-inline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88em;
+  color: var(--accent-gold);
+  padding: 0 0.15em;
+}
+
+/* ── SEPARATOR ── */
+.layer-sep {
+  width: 40px;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0 auto;
+}
+
+/* ── INTERACTIVE MIND MAP ── */
+#mindmap-section {
+  padding: 4rem 1rem 6rem;
+  background: var(--bg-section);
+}
+
+#mindmap-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.map-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+#mindmap-canvas {
+  width: 100%;
+  max-width: 1100px;
+  height: 720px;
+  margin: 0 auto;
+  display: block;
+  cursor: grab;
+}
+
+#mindmap-canvas:active { cursor: grabbing; }
+
+.map-tooltip {
+  position: fixed;
+  max-width: 300px;
+  padding: 0.8rem 1rem;
+  background: rgba(20, 22, 32, 0.96);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 200;
+  backdrop-filter: blur(8px);
+}
+
+.map-tooltip.visible { opacity: 1; }
+.map-tooltip .tt-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+/* ── CPT TABLE ── */
+.cpt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 2rem 0;
+  background: var(--border-subtle);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cpt-cell {
+  background: var(--bg-card);
+  padding: 1.2rem;
+  text-align: center;
+}
+
+.cpt-cell .sym {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.cpt-cell .sym.c-col { color: var(--accent-em); }
+.cpt-cell .sym.p-col { color: var(--accent-left); }
+.cpt-cell .sym.t-col { color: var(--accent-right); }
+
+.cpt-cell .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+
+.cpt-cell .desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ── HELIX ANIMATION ── */
+.helix-container {
+  width: 100%;
+  height: 200px;
+  margin: 2rem 0;
+  position: relative;
+}
+
+#helix-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.helix-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.8rem;
+}
+
+.helix-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-dim);
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.helix-btn:hover, .helix-btn.active {
+  color: var(--text-primary);
+  border-color: var(--accent-gold);
+}
+
+/* ── FOOTER ── */
+.footer {
+  padding: 4rem 2rem;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ── FADE-IN ON SCROLL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  body { font-size: 17px; }
+  .layer { padding: 4rem 1.2rem; }
+  .cpt-grid { grid-template-columns: 1fr; }
+  .layer-nav { display: none; }
+  #mindmap-canvas { height: 500px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-helix">
+    <svg width="800" height="800" viewBox="0 0 800 800">
+      <defs>
+        <linearGradient id="helixGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#c45d4a" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#4a8ec4" stop-opacity="0.6"/>
+        </linearGradient>
+      </defs>
+      <g id="hero-helix-paths"></g>
+    </svg>
+  </div>
+  <h1 class="hero-title">
+    <span class="left-mark">Left-Handed</span> Signature<br>in Our Flesh
+  </h1>
+  <p class="hero-subtitle">Chirality &middot; Helicity &middot; Parity &middot; From amino acids to the Poincaré algebra</p>
+  <div class="hero-scroll-cue">scroll</div>
+</section>
+
+<!-- NAV DOTS -->
+<nav class="layer-nav" id="layerNav">
+  <a href="#sec-bio" data-section="sec-bio"><span class="nav-label">Biology</span></a>
+  <a href="#sec-em" data-section="sec-em"><span class="nav-label">Polarisation</span></a>
+  <a href="#sec-cpt" data-section="sec-cpt"><span class="nav-label">CPT</span></a>
+  <a href="#sec-helicity" data-section="sec-helicity"><span class="nav-label">Helicity</span></a>
+  <a href="#sec-poincare" data-section="sec-poincare"><span class="nav-label">Poincaré</span></a>
+  <a href="#sec-weak" data-section="sec-weak"><span class="nav-label">Weak Force</span></a>
+  <a href="#mindmap-section" data-section="mindmap-section"><span class="nav-label">Mind Map</span></a>
+</nav>
+
+<!-- ═══ SECTION 1: BIOLOGICAL CHIRALITY ═══ -->
+<section class="layer" id="sec-bio">
+  <div class="layer-inner">
+    <div class="layer-tag reveal"><span class="tag-accent">01</span> &mdash; Molecular Handedness</div>
+    <h2 class="reveal">The Amino Acid Mirror</h2>
+    <p class="reveal">Chirality pervades nature far below the scale of our opposable thumbs. A molecule is chiral when it cannot be superimposed on its mirror image. Your left and right hands share this property: same structure, same atoms, but not identical. The distinction is not cosmetic. It is the difference between a drug that heals and one that harms.</p>
+    <p class="reveal">Life on Earth made a choice. Of the twenty standard amino acids, almost all occur exclusively in their left-handed (<em>L</em>-enantiomer) form. Right-handed amino acids are chemically viable. Nature simply does not use them. DNA winds the other way: a right-handed double helix, with the lone exception of Z-DNA, which forms reluctantly and under duress.</p>
+
+    <div class="aside-box left-accent reveal">
+      <div class="aside-title">The Castle Staircase</div>
+      <p>Medieval spiral staircases wound clockwise ascending. A right-handed defender retreating upward could swing freely. The attacker's blade met the central column. Only an army of left-handers could fight on equal terms. If they won, they inherited a fortress that offered them no advantage in return.</p>
+      <p>Homochirality in biology carries the same flavour. Once one handedness dominates, it excludes the other through structural incompatibility rather than energetic superiority.</p>
+    </div>
+
+    <p class="reveal">Meteorites deliver amino acids to Earth. More arrive left-handed than right. The Rosetta mission to comet 67P/Churyumov-Gerasimenko searched for this asymmetry at the source. The question persists: was the bias seeded by circularly polarised light in the protostellar nebula, or by some deeper asymmetry written into the laws themselves?</p>
+  </div>
+</section>
+
+<div class="layer-sep"></div>
+
+<!-- ═══ SECTION 2: ELECTROMAGNETIC POLARISATION ═══ -->
+<section class="layer" id="sec-em">
+  <div class="layer-inner">
+    <div class="layer-tag reveal"><span class="tag-accent">02</span> &mdash; Electromagnetic Chirality</div>
+    <h2 class="reveal">Polarisation and the Helix of Light</h2>
+    <p class="reveal">An incandescent bulb spews photons with randomly oriented electric fields. No preferred direction. But select a single propagating wave and the electric field vector traces a definite path. If it oscillates along a fixed axis, the light is linearly polarised. If it rotates as the wave advances, the tip of the field vector scribes a helix.</p>
+
+    <div class="helix-container reveal">
+      <canvas id="helix-canvas"></canvas>
+      <div class="helix-controls">
+        <button class="helix-btn active" onclick="setHelixMode('left')">Left-handed</button>
+        <button class="helix-btn" onclick="setHelixMode('right')">Right-handed</button>
+        <button class="helix-btn" onclick="setHelixMode('linear')">Linear</button>
+      </div>
+    </div>
+
+    <p class="reveal">The convention: looking toward the source, if the electric field rotates counterclockwise the light is <em>right</em>-circularly polarised. The helix it scribes is palindromic in time. Reverse time and the propagation direction flips, but the helicity does not. The helix reads the same forwards and backwards.</p>
+    <p class="reveal">Parity is different. Invert the spatial coordinates and right-circular becomes left-circular. Helicity flips sign under <strong>P</strong>. This is the operational definition of chirality for radiation: a property that changes under spatial inversion but not under time reversal.</p>
+
+    <div class="aside-box gold-accent reveal">
+      <div class="aside-title">Optical Rotation</div>
+      <p>When linearly polarised light traverses a chiral medium, the two circular components travel at different speeds. The plane of polarisation rotates. If one component is also preferentially absorbed, the phenomenon is circular dichroism. Both effects are diagnostic of molecular handedness.</p>
+    </div>
+  </div>
+</section>
+
+<div class="layer-sep"></div>
+
+<!-- ═══ SECTION 3: CPT ═══ -->
+<section class="layer" id="sec-cpt">
+  <div class="layer-inner">
+    <div class="layer-tag reveal"><span class="tag-accent">03</span> &mdash; Discrete Symmetries</div>
+    <h2 class="reveal">C, P, T — and Their Failure</h2>
+    <p class="reveal">Three candidate symmetries of nature. Each plausible on its own. Each broken.</p>
+
+    <div class="cpt-grid reveal">
+      <div class="cpt-cell">
+        <div class="sym c-col">C</div>
+        <div class="label">Charge Conjugation</div>
+        <div class="desc">Replace every particle with its antiparticle. Flip charge and all internal quantum numbers.</div>
+      </div>
+      <div class="cpt-cell">
+        <div class="sym p-col">P</div>
+        <div class="label">Parity</div>
+        <div class="desc">Invert spatial coordinates. Exchange left with right. <strong>x → −x</strong></div>
+      </div>
+      <div class="cpt-cell">
+        <div class="sym t-col">T</div>
+        <div class="label">Time Reversal</div>
+        <div class="desc">Replace <strong>t</strong> with <strong>−t</strong>. Reverse momenta and angular momenta.</div>
+      </div>
+    </div>
+
+    <p class="reveal">Wu's 1957 experiment with cobalt-60 demonstrated that parity is not conserved in beta decay. Nature distinguishes left from right. The neutrinos produced were always left-handed. Antineutrinos always right-handed. This was not a statistical preference. It was absolute.</p>
+    <p class="reveal">The combination <strong>CP</strong> was then proposed as the true symmetry. In 1964, kaon decay proved otherwise. CP violation is real and has since been confirmed in B-meson systems. Only the triple combination <strong>CPT</strong> appears to hold universally, a requirement linked to the Lorentz invariance of quantum field theory.</p>
+
+    <div class="aside-box weak-accent reveal">
+      <div class="aside-title">A Thermodynamic Tension</div>
+      <p>If CP is violated but CPT is exact, then T must also be violated. This sits uneasily beside the time-symmetry of fundamental dynamics and the irreversibility encoded in the second law of thermodynamics. The zeroth law assumes equilibrium exists. The arrow of time and the arrow of chirality may not be independent.</p>
+    </div>
+  </div>
+</section>
+
+<div class="layer-sep"></div>
+
+<!-- ═══ SECTION 4: HELICITY ═══ -->
+<section class="layer" id="sec-helicity">
+  <div class="layer-inner">
+    <div class="layer-tag reveal"><span class="tag-accent">04</span> &mdash; The Relativity of Spin</div>
+    <h2 class="reveal">Helicity versus Chirality</h2>
+    <p class="reveal">Helicity is the projection of a particle's spin onto its momentum direction. If spin and momentum are parallel, the helicity is positive: right-handed. Antiparallel gives left-handed. The distinction is geometrically clear. But for massive particles, it is frame-dependent.</p>
+    <p class="reveal">A massive particle moves slower than light. An observer can overtake it. In that boosted frame the momentum reverses but the spin does not. The helicity flips. What was left-handed becomes right-handed. For massive particles, helicity is an accident of perspective, not an intrinsic property.</p>
+
+    <div class="math-block reveal">
+      h = sign(J⃗ · p⃗)
+
+      For massless particles: no boost can reverse p⃗
+      → helicity is Lorentz invariant
+      → helicity ≡ chirality
+    </div>
+
+    <p class="reveal">For <em>massless</em> particles the situation is different. Nothing outruns light. No Lorentz boost can reverse the momentum of a photon, gluon, or graviton. Their helicity is absolute. Every observer agrees. In this limit, helicity and chirality coincide. The two Greek roots — <span class="math-inline">χείρ</span> (hand) and <span class="math-inline">ἕλιξ</span> (twist) — describe the same thing.</p>
+
+    <div class="aside-box right-accent reveal">
+      <div class="aside-title">Neutrinos: The Edge Case</div>
+      <p>Neutrinos were long assumed massless, making their left-handedness both a helicity and a chirality statement. Neutrino oscillation experiments have since shown they possess small masses. The chirality remains left-handed as a coupling property of the weak interaction. The helicity becomes frame-dependent in principle, though the corrections are negligible at observable energies.</p>
+    </div>
+  </div>
+</section>
+
+<div class="layer-sep"></div>
+
+<!-- ═══ SECTION 5: POINCARÉ ALGEBRA ═══ -->
+<section class="layer" id="sec-poincare">
+  <div class="layer-inner">
+    <div class="layer-tag reveal"><span class="tag-accent">05</span> &mdash; Algebraic Structure</div>
+    <h2 class="reveal">The Poincaré Algebra and SL(2,ℂ)</h2>
+    <p class="reveal">Particle states are classified by the representations of the Poincaré group. This group encodes all symmetries of flat spacetime: Lorentz boosts, spatial rotations, and translations. The generators are the angular momentum operators <span class="math-inline">J</span> and the four-momentum <span class="math-inline">P</span>, closed under commutation.</p>
+
+    <div class="math-block reveal">
+      [Jᵢ, Jⱼ] = iεᵢⱼₖ Jₖ
+
+      Two Casimir operators: PᵘPᵤ (mass²) and WᵘWᵤ (spin)
+
+      Massive: SU(2) "little group" → spin s, projections −s to +s
+      Massless: helicity only, ±s
+    </div>
+
+    <p class="reveal">Two Casimir operators commute with every generator. Their eigenvalues label particle states: mass and spin. For massive particles the stabiliser of the four-momentum is SU(2), the rotation group. Spin is a familiar quantum number with 2s+1 projections. For massless particles the stabiliser is the Euclidean group E(2) and only the helicity survives as a label.</p>
+    <p class="reveal">The proper orthochronous Lorentz group SO⁺(1,3) is the local symmetry of physical law. Its universal cover is the special linear group <span class="math-inline">SL(2,ℂ)</span>. Pauli matrices generate rotations. Hermitian matrices generate boosts. The fundamental representation <span class="math-inline">(½,0)</span> and its conjugate <span class="math-inline">(0,½)</span> are the left and right Weyl spinors.</p>
+
+    <div class="aside-box gold-accent reveal">
+      <div class="aside-title">Dirac = Left ⊕ Right</div>
+      <p>A Dirac spinor is the direct sum of left and right Weyl components: (½,0) ⊕ (0,½). Mass couples them. In the massless limit the two halves decouple and chirality becomes a good quantum number. The chiral projection operator γ⁵ separates the two, and it is precisely this projector that appears in the weak interaction vertex.</p>
+    </div>
+
+    <p class="reveal">The full Lorentz group O(1,3) has four disconnected components, distinguished by the sign of the determinant and the sign of the time-time component. Only the identity component SO⁺(1,3) is an exact symmetry. The other components contain P, T, and PT. That these are not symmetries of nature is the algebraic shadow of parity violation.</p>
+  </div>
+</section>
+
+<div class="layer-sep"></div>
+
+<!-- ═══ SECTION 6: WEAK INTERACTION ═══ -->
+<section class="layer" id="sec-weak">
+  <div class="layer-inner">
+    <div class="layer-tag reveal"><span class="tag-accent">06</span> &mdash; The Left-Handed Force</div>
+    <h2 class="reveal">Why the Weak Force Picks a Side</h2>
+    <p class="reveal">Only left-handed fermions participate in the weak interaction. This is not a tendency or a preference. It is absolute. The W and Z bosons couple exclusively to the left-chiral projection of fermion fields. Right-handed fermions are invisible to the weak force entirely.</p>
+    <p class="reveal">This is frame-independent. Unlike helicity, chirality as defined by the projection operator <span class="math-inline">½(1−γ⁵)</span> does not change under Lorentz boosts. A particle that interacts weakly does so in every reference frame. The weak interaction's handedness is written into the Lagrangian, not into the kinematics.</p>
+
+    <div class="aside-box weak-accent reveal">
+      <div class="aside-title">Electroweak Unification</div>
+      <p>The electroweak theory assigns left-handed fermions to SU(2) doublets and right-handed fermions to singlets. The asymmetry is structural: it determines how particles acquire mass through the Higgs mechanism, how generations mix, and why neutrinos produced in beta decay are always left-handed.</p>
+    </div>
+
+    <p class="reveal">The question that threads through every scale returns. Why left? The medieval staircase argument shows that once a choice is made, it propagates. But the weak interaction's chirality is not a frozen accident. It is a feature of the gauge group itself. SU(2)<sub>L</sub> acts only on left-chiral fields. The subscript is not a label of convenience. It is the symmetry.</p>
+    <p class="reveal" style="color: var(--text-primary); font-style: italic; margin-top: 2rem;">As the fireflies drawn to the light, are we not drawn to the inescapable conclusion that our chiral flesh was cast from the tumult of circularly polarised waves — the primordial evolutionary filter — the progeny of our left-fit enantiomers.</p>
+  </div>
+</section>
+
+<div class="layer-sep"></div>
+
+<!-- ═══ INTERACTIVE MIND MAP ═══ -->
+<section id="mindmap-section">
+  <h2 class="reveal">The Chiral Landscape</h2>
+  <p class="map-subtitle reveal">Interactive mind map &middot; hover for detail &middot; drag to explore</p>
+  <canvas id="mindmap-canvas" class="reveal"></canvas>
+</section>
+
+<div class="map-tooltip" id="mapTooltip">
+  <div class="tt-title" id="ttTitle"></div>
+  <div id="ttBody"></div>
+</div>
+
+<footer class="footer">
+  Chirality &middot; From Flesh to Field &middot; LMJ
+</footer>
+
+<script>
+// ── HERO HELIX SVG ──
+(function() {
+  const g = document.getElementById('hero-helix-paths');
+  const N = 200;
+  let d1 = 'M', d2 = 'M';
+  for (let i = 0; i < N; i++) {
+    const t = i / N;
+    const y = 100 + t * 600;
+    const x1 = 400 + Math.sin(t * 8 * Math.PI) * 120;
+    const x2 = 400 - Math.sin(t * 8 * Math.PI) * 120;
+    d1 += `${i===0?'':' L'}${x1},${y}`;
+    d2 += `${i===0?'':' L'}${x2},${y}`;
+  }
+  g.innerHTML = `
+    <path d="${d1}" fill="none" stroke="url(#helixGrad)" stroke-width="1.5"/>
+    <path d="${d2}" fill="none" stroke="url(#helixGrad)" stroke-width="1.5" opacity="0.4"/>
+  `;
+})();
+
+// ── SCROLL REVEAL ──
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+revealEls.forEach(el => revealObs.observe(el));
+
+// ── LAYER NAV ──
+const layerNav = document.getElementById('layerNav');
+const sections = document.querySelectorAll('.layer, #mindmap-section');
+const navLinks = layerNav.querySelectorAll('a');
+
+const navObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = layerNav.querySelector(`a[data-section="${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => navObs.observe(s));
+
+window.addEventListener('scroll', () => {
+  layerNav.classList.toggle('visible', window.scrollY > window.innerHeight * 0.5);
+});
+
+// ── HELIX CANVAS ANIMATION ──
+const helixCanvas = document.getElementById('helix-canvas');
+const hCtx = helixCanvas.getContext('2d');
+let helixMode = 'left';
+let helixTime = 0;
+
+function setHelixMode(mode) {
+  helixMode = mode;
+  document.querySelectorAll('.helix-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function drawHelix() {
+  const W = helixCanvas.width = helixCanvas.offsetWidth * 2;
+  const H = helixCanvas.height = helixCanvas.offsetHeight * 2;
+  hCtx.clearRect(0, 0, W, H);
+  
+  const cy = H / 2;
+  const amp = H * 0.3;
+  const waveLen = W * 0.25;
+  const k = 2 * Math.PI / waveLen;
+  
+  helixTime += 0.02;
+  
+  // Draw propagation axis
+  hCtx.strokeStyle = 'rgba(200,190,170,0.08)';
+  hCtx.lineWidth = 1;
+  hCtx.setLineDash([8, 8]);
+  hCtx.beginPath();
+  hCtx.moveTo(40, cy);
+  hCtx.lineTo(W - 40, cy);
+  hCtx.stroke();
+  hCtx.setLineDash([]);
+  
+  // E-field and B-field
+  const steps = 300;
+  const startX = 40;
+  const endX = W - 40;
+  
+  for (let pass = 0; pass < 2; pass++) {
+    hCtx.beginPath();
+    hCtx.lineWidth = pass === 0 ? 2.5 : 1.5;
+    hCtx.strokeStyle = pass === 0 ? 'rgba(196,93,74,0.8)' : 'rgba(74,142,196,0.5)';
+    
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = startX + t * (endX - startX);
+      const phase = k * (x) - helixTime * 60;
+      
+      let yOff;
+      if (helixMode === 'linear') {
+        yOff = Math.sin(phase) * amp * (pass === 0 ? 1 : 0.6);
+        if (pass === 1) {
+          // B perpendicular - show as reduced opacity same plane for 2D
+          yOff = Math.cos(phase) * amp * 0.4;
+        }
+      } else {
+        const sign = helixMode === 'left' ? 1 : -1;
+        if (pass === 0) {
+          yOff = Math.sin(phase) * amp;
+        } else {
+          yOff = Math.cos(phase * sign) * amp * 0.6;
+        }
+      }
+      
+      if (i === 0) hCtx.moveTo(x, cy + yOff);
+      else hCtx.lineTo(x, cy + yOff);
+    }
+    hCtx.stroke();
+  }
+  
+  // Draw small arrows along E field
+  for (let i = 0; i < 16; i++) {
+    const t = (i + 0.5) / 16;
+    const x = startX + t * (endX - startX);
+    const phase = k * x - helixTime * 60;
+    let yOff;
+    if (helixMode === 'linear') {
+      yOff = Math.sin(phase) * amp;
+    } else {
+      yOff = Math.sin(phase) * amp;
+    }
+    
+    hCtx.strokeStyle = 'rgba(196,93,74,0.25)';
+    hCtx.lineWidth = 1;
+    hCtx.beginPath();
+    hCtx.moveTo(x, cy);
+    hCtx.lineTo(x, cy + yOff);
+    hCtx.stroke();
+  }
+  
+  // Labels
+  hCtx.font = `${14 * 2}px JetBrains Mono`;
+  hCtx.fillStyle = 'rgba(196,93,74,0.6)';
+  hCtx.fillText('E', 50, cy - amp - 10);
+  hCtx.fillStyle = 'rgba(74,142,196,0.4)';
+  hCtx.fillText('B', 50, cy + amp + 30);
+  
+  requestAnimationFrame(drawHelix);
+}
+drawHelix();
+
+
+// ── MIND MAP ──
+const mapCanvas = document.getElementById('mindmap-canvas');
+const mCtx = mapCanvas.getContext('2d');
+const tooltip = document.getElementById('mapTooltip');
+const ttTitle = document.getElementById('ttTitle');
+const ttBody = document.getElementById('ttBody');
+
+// Node data
+const nodes = [
+  // Central
+  { id: 'chirality', x: 0.5, y: 0.48, r: 44, label: 'Chirality', color: '#c4a24a',
+    desc: 'From Greek χείρ, "hand". A property of objects not superimposable on their mirror image. The unifying concept linking molecular biology to particle physics.' },
+  
+  // Forces (ring 1)
+  { id: 'weak', x: 0.5, y: 0.13, r: 36, label: 'Weak', color: '#7b4ac4',
+    desc: 'Couples exclusively to left-handed fermions via W±, Z⁰ bosons. Mediates beta decay, violates P and CP symmetry. The only force with an intrinsic handedness.' },
+  { id: 'strong', x: 0.15, y: 0.72, r: 34, label: 'Strong', color: '#4ac48a',
+    desc: 'Mediated by gluons carrying colour charge. Preserves parity. Confines quarks via SU(3) gauge symmetry. Leptons do not interact strongly.' },
+  { id: 'em', x: 0.85, y: 0.72, r: 34, label: 'Electromagnetic', color: '#c4884a',
+    desc: 'Mediated by photons. Preserves parity. Couples to electric charge. Photon helicity ±1 carries the circular polarisation states.' },
+  
+  // Gauge bosons
+  { id: 'wz', x: 0.5, y: 0.32, r: 28, label: 'W, Z', color: '#9b7acc',
+    desc: 'Weak gauge bosons. W± carry electric charge and change flavour. Z⁰ is neutral. All three are massive, acquiring mass via the Higgs mechanism.' },
+  { id: 'gluon', x: 0.29, y: 0.58, r: 22, label: 'Gluon', color: '#6ab89a',
+    desc: 'Massless spin-1 boson. Carries colour charge, hence self-interacts. Chirality equals helicity (massless). Eight varieties from SU(3).' },
+  { id: 'photon', x: 0.71, y: 0.58, r: 22, label: 'Photon', color: '#c49a6a',
+    desc: 'Massless spin-1 boson. Helicity ±1. Chirality = helicity since no frame can reverse its momentum. Circularly polarised states exhibit handedness.' },
+  
+  // Concepts
+  { id: 'neutrino', x: 0.2, y: 0.25, r: 26, label: 'ν (neutrino)', color: '#9b7acc',
+    desc: 'Always produced left-handed in weak decays. Described by Weyl spinors. Neutrino oscillations imply small mass, but the chirality of the weak coupling remains absolute.' },
+  { id: 'helicity', x: 0.8, y: 0.25, r: 26, label: 'Helicity', color: '#4a8ec4',
+    desc: 'Sign of J⃗·p⃗. Frame-dependent for massive particles (a Lorentz boost can reverse p). Lorentz invariant for massless particles. Flips under parity.' },
+  { id: 'parity', x: 0.82, y: 0.42, r: 22, label: 'Parity (P)', color: '#c45d4a',
+    desc: 'Spatial inversion: x → −x. Not conserved in weak interactions (Wu experiment, 1957). Momentum is a polar vector and flips; angular momentum is axial and does not.' },
+  { id: 'cpt', x: 0.18, y: 0.42, r: 24, label: 'CPT', color: '#c4a24a',
+    desc: 'The combined operation C·P·T is an exact symmetry of all known QFTs. Required by Lorentz invariance. Guarantees equal masses for particle-antiparticle pairs.' },
+  { id: 'dirac', x: 0.35, y: 0.16, r: 20, label: 'Dirac', color: '#8a8578',
+    desc: 'Dirac spinor = (½,0) ⊕ (0,½). Both chiralities present. Mass term couples left to right. The chiral projector ½(1−γ⁵) extracts the left-handed component.' },
+  { id: 'weyl', x: 0.35, y: 0.32, r: 18, label: 'Weyl', color: '#8a8578',
+    desc: 'Weyl spinor: a single chirality representation, (½,0) or (0,½). Describes massless fermions. Neutrinos are traditionally modelled as Weyl spinors.' },
+  { id: 'sl2c', x: 0.65, y: 0.16, r: 22, label: 'SL(2,ℂ)', color: '#8a8578',
+    desc: 'Universal cover of the proper orthochronous Lorentz group SO⁺(1,3). Its representations classify particle spin states. SU(2) ⊂ SL(2,ℂ) generates rotations; Hermitian elements generate boosts.' },
+  { id: 'amino', x: 0.12, y: 0.88, r: 22, label: 'L-amino acids', color: '#c45d4a',
+    desc: 'Left-handed enantiomers dominate terrestrial biochemistry. Meteoritic amino acids show an L-excess, suggesting a cosmic origin for the bias.' },
+  { id: 'cmbr', x: 0.5, y: 0.88, r: 24, label: 'CMB polarisation', color: '#c4884a',
+    desc: 'Gravitational waves at recombination imprint B-mode polarisation on the cosmic microwave background. These carry information about the handedness of primordial perturbations.' },
+  { id: 'baryon', x: 0.28, y: 0.72, r: 18, label: 'Baryon №', color: '#6ab89a',
+    desc: 'Conserved by the strong interaction. Baryon number violation is required for baryogenesis but has never been observed directly.' },
+  { id: 'isospin', x: 0.42, y: 0.42, r: 16, label: 'Isospin', color: '#9b7acc',
+    desc: 'Weak isospin: the charge of the SU(2)_L gauge symmetry. Left-handed fermions form doublets; right-handed fermions are singlets. The asymmetry is structural.' },
+  { id: 'charge', x: 0.88, y: 0.88, r: 18, label: 'Electric charge', color: '#c4884a',
+    desc: 'Proton and electron charges equal to 20+ decimal places. Couples to the photon. Conserved by all interactions. Leptons carry lepton number; quarks carry colour.' },
+];
+
+// Edges
+const edges = [
+  ['chirality', 'weak'], ['chirality', 'strong'], ['chirality', 'em'],
+  ['weak', 'wz'], ['strong', 'gluon'], ['em', 'photon'],
+  ['weak', 'neutrino'], ['neutrino', 'dirac'],
+  ['weak', 'dirac'], ['weak', 'weyl'],
+  ['chirality', 'helicity'], ['helicity', 'parity'],
+  ['chirality', 'cpt'],
+  ['helicity', 'sl2c'], ['dirac', 'sl2c'],
+  ['wz', 'isospin'], ['chirality', 'isospin'],
+  ['strong', 'baryon'],
+  ['em', 'charge'],
+  ['chirality', 'amino'], ['chirality', 'cmbr'],
+  ['gluon', 'baryon'],
+  ['photon', 'cmbr'],
+  ['neutrino', 'cpt'],
+  ['parity', 'cpt'],
+];
+
+let mapW, mapH, dpr;
+let hoveredNode = null;
+let panX = 0, panY = 0, dragging = false, lastMouse = {x:0,y:0};
+let nodePositions = [];
+
+function resizeMap() {
+  dpr = window.devicePixelRatio || 1;
+  mapW = mapCanvas.offsetWidth;
+  mapH = mapCanvas.offsetHeight;
+  mapCanvas.width = mapW * dpr;
+  mapCanvas.height = mapH * dpr;
+  mCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  nodePositions = nodes.map(n => ({
+    ...n,
+    px: n.x * mapW,
+    py: n.y * mapH,
+  }));
+}
+
+function drawMap() {
+  mCtx.clearRect(0, 0, mapW, mapH);
+  mCtx.save();
+  mCtx.translate(panX, panY);
+  
+  // Draw edges
+  edges.forEach(([a, b]) => {
+    const na = nodePositions.find(n => n.id === a);
+    const nb = nodePositions.find(n => n.id === b);
+    if (!na || !nb) return;
+    const isHovered = hoveredNode && (hoveredNode.id === a || hoveredNode.id === b);
+    mCtx.strokeStyle = isHovered ? 'rgba(200,190,170,0.2)' : 'rgba(200,190,170,0.06)';
+    mCtx.lineWidth = isHovered ? 1.5 : 0.8;
+    mCtx.beginPath();
+    mCtx.moveTo(na.px, na.py);
+    mCtx.lineTo(nb.px, nb.py);
+    mCtx.stroke();
+  });
+  
+  // Draw nodes
+  nodePositions.forEach(n => {
+    const isHovered = hoveredNode && hoveredNode.id === n.id;
+    const isConnected = hoveredNode && edges.some(([a,b]) => 
+      (a === hoveredNode.id && b === n.id) || (b === hoveredNode.id && a === n.id)
+    );
+    const dimmed = hoveredNode && !isHovered && !isConnected;
+    
+    // Glow
+    if (isHovered) {
+      const grad = mCtx.createRadialGradient(n.px, n.py, n.r * 0.5, n.px, n.py, n.r * 2.5);
+      grad.addColorStop(0, n.color + '30');
+      grad.addColorStop(1, 'transparent');
+      mCtx.fillStyle = grad;
+      mCtx.beginPath();
+      mCtx.arc(n.px, n.py, n.r * 2.5, 0, Math.PI * 2);
+      mCtx.fill();
+    }
+    
+    // Circle
+    mCtx.fillStyle = dimmed ? 'rgba(20,22,32,0.8)' : '#141620';
+    mCtx.strokeStyle = dimmed ? n.color + '30' : n.color + (isHovered ? 'cc' : '80');
+    mCtx.lineWidth = isHovered ? 2 : 1;
+    mCtx.beginPath();
+    mCtx.arc(n.px, n.py, n.r, 0, Math.PI * 2);
+    mCtx.fill();
+    mCtx.stroke();
+    
+    // Label
+    const fontSize = n.r > 30 ? 12 : n.r > 22 ? 10 : 9;
+    mCtx.font = `${fontSize}px 'JetBrains Mono', monospace`;
+    mCtx.fillStyle = dimmed ? 'rgba(200,190,170,0.15)' : (isHovered ? '#e8e4dc' : '#9a958a');
+    mCtx.textAlign = 'center';
+    mCtx.textBaseline = 'middle';
+    mCtx.fillText(n.label, n.px, n.py);
+  });
+  
+  mCtx.restore();
+  requestAnimationFrame(drawMap);
+}
+
+function getNodeAt(mx, my) {
+  const x = mx - panX;
+  const y = my - panY;
+  for (let i = nodePositions.length - 1; i >= 0; i--) {
+    const n = nodePositions[i];
+    const dx = x - n.px;
+    const dy = y - n.py;
+    if (dx*dx + dy*dy <= n.r * n.r * 1.3) return n;
+  }
+  return null;
+}
+
+mapCanvas.addEventListener('mousemove', e => {
+  const rect = mapCanvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  
+  if (dragging) {
+    panX += e.clientX - lastMouse.x;
+    panY += e.clientY - lastMouse.y;
+    lastMouse = {x: e.clientX, y: e.clientY};
+    return;
+  }
+  
+  const node = getNodeAt(mx, my);
+  hoveredNode = node;
+  
+  if (node) {
+    mapCanvas.style.cursor = 'pointer';
+    ttTitle.textContent = node.label;
+    ttBody.textContent = node.desc;
+    tooltip.classList.add('visible');
+    
+    let tx = e.clientX + 16;
+    let ty = e.clientY - 10;
+    if (tx + 310 > window.innerWidth) tx = e.clientX - 316;
+    if (ty + 150 > window.innerHeight) ty = e.clientY - 120;
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top = ty + 'px';
+  } else {
+    mapCanvas.style.cursor = 'grab';
+    tooltip.classList.remove('visible');
+  }
+});
+
+mapCanvas.addEventListener('mousedown', e => {
+  if (!hoveredNode) {
+    dragging = true;
+    lastMouse = {x: e.clientX, y: e.clientY};
+    mapCanvas.style.cursor = 'grabbing';
+  }
+});
+
+window.addEventListener('mouseup', () => { dragging = false; });
+mapCanvas.addEventListener('mouseleave', () => {
+  hoveredNode = null;
+  tooltip.classList.remove('visible');
+});
+
+window.addEventListener('resize', resizeMap);
+resizeMap();
+drawMap();
+</script>
+</body>
+</html>

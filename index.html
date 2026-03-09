@@ -284,6 +284,10 @@ body {
   border: 1px solid var(--border-subtle);
 }
 
+.math-block sub, .math-block sup { font-size: 0.75em; line-height: 0; position: relative; }
+.math-block sub { vertical-align: -0.3em; color: var(--accent-gold); }
+.math-block sup { vertical-align: 0.5em; }
+
 .math-inline {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.88em;
@@ -406,14 +410,16 @@ body {
 /* ── HELIX ANIMATION ── */
 .helix-container {
   width: 100%;
-  height: 200px;
+  height: 240px;
   margin: 2rem 0;
   position: relative;
+  overflow: hidden;
 }
 
 #helix-canvas {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .helix-controls {
@@ -683,6 +689,8 @@ body {
 
 <footer class="footer">
   Chirality &middot; From Flesh to Field &middot; LMJ
+  <br><br>
+  <a href="https://leelemacjames.github.io/chiralResearch-ideas/" style="color: var(--accent-weak); text-decoration: none;">Research Notes: When Chirality Becomes Helicity &rarr;</a>
 </footer>
 
 <script>
@@ -754,7 +762,7 @@ function drawHelix() {
   const waveLen = W * 0.25;
   const k = 2 * Math.PI / waveLen;
   
-  helixTime += 0.02;
+  helixTime += 0.004;
   
   // Draw propagation axis
   hCtx.strokeStyle = 'rgba(200,190,170,0.08)';
@@ -779,7 +787,7 @@ function drawHelix() {
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
       const x = startX + t * (endX - startX);
-      const phase = k * (x) - helixTime * 60;
+      const phase = k * (x) - helixTime * 12;
       
       let yOff;
       if (helixMode === 'linear') {
@@ -807,7 +815,7 @@ function drawHelix() {
   for (let i = 0; i < 16; i++) {
     const t = (i + 0.5) / 16;
     const x = startX + t * (endX - startX);
-    const phase = k * x - helixTime * 60;
+    const phase = k * x - helixTime * 12;
     let yOff;
     if (helixMode === 'linear') {
       yOff = Math.sin(phase) * amp;
@@ -1054,3 +1062,4 @@ drawMap();
 </script>
 </body>
 </html>
+

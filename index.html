@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Left-Handed Signature — Chirality from Flesh to Field</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 :root {
   --bg-deep: #0a0b0f;
@@ -411,15 +412,20 @@ body {
 /* ── HELIX ANIMATION ── */
 .helix-container {
   width: 100%;
-  height: 240px;
+  height: 300px;
   margin: 2rem 0;
   position: relative;
   overflow: hidden;
+  border-radius: 6px;
+  background: #08090d;
 }
 
-#helix-canvas {
+#helix-3d {
   width: 100%;
   height: 100%;
+}
+
+#helix-3d canvas {
   display: block;
 }
 
@@ -546,7 +552,7 @@ body {
     <p class="reveal">An incandescent bulb spews photons with randomly oriented electric fields. No preferred direction. But select a single propagating wave and the electric field vector traces a definite path. If it oscillates along a fixed axis, the light is linearly polarised. If it rotates as the wave advances, the tip of the field vector scribes a helix.</p>
 
     <div class="helix-container reveal">
-      <canvas id="helix-canvas"></canvas>
+      <div id="helix-3d"></div>
       <div class="helix-controls">
         <button class="helix-btn active" data-mode="left">Left-handed</button>
         <button class="helix-btn" data-mode="right">Right-handed</button>
@@ -745,127 +751,148 @@ window.addEventListener('scroll', () => {
   layerNav.classList.toggle('visible', window.scrollY > window.innerHeight * 0.5);
 });
 
-// ── HELIX CANVAS ANIMATION ──
-const helixCanvas = document.getElementById('helix-canvas');
-const hCtx = helixCanvas.getContext('2d');
+// ── 3D HELIX VISUALISATION ──
 let helixMode = 'left';
-let helixTime = 0;
 
 function setHelixMode(mode) {
   helixMode = mode;
   document.querySelectorAll('.helix-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
   });
+  buildHelix();
 }
 
-function drawHelix() {
-  const W = helixCanvas.width = helixCanvas.offsetWidth * 2;
-  const H = helixCanvas.height = helixCanvas.offsetHeight * 2;
-  hCtx.clearRect(0, 0, W, H);
-  
-  const cy = H / 2;
-  const amp = H * 0.28;
-  const waveLen = W * 0.25;
-  const k = 2 * Math.PI / waveLen;
-  const startX = 50;
-  const endX = W - 50;
-  const steps = 400;
-  
-  helixTime += 0.006;
-  const omega = helixTime * 8;
-  
-  // Propagation axis
-  hCtx.strokeStyle = 'rgba(200,190,170,0.06)';
-  hCtx.lineWidth = 1;
-  hCtx.setLineDash([8, 8]);
-  hCtx.beginPath();
-  hCtx.moveTo(startX, cy);
-  hCtx.lineTo(endX, cy);
-  hCtx.stroke();
-  hCtx.setLineDash([]);
-  
-  // Compute E and B offsets per mode
-  function getFields(x) {
-    const phi = k * x - omega;
-    let Ey, By;
-    if (helixMode === 'linear') {
-      // Linear: E and B in phase, same plane (2D projection)
-      Ey = Math.sin(phi) * amp;
-      By = Math.cos(phi) * amp * 0.5;
-    } else if (helixMode === 'left') {
-      // Left circular: E leads B by 90° (B = sin, E = cos gives left-hand screw)
-      Ey = Math.cos(phi) * amp;
-      By = Math.sin(phi) * amp * 0.6;
-    } else {
-      // Right circular: E lags B by 90°
-      Ey = Math.cos(phi) * amp;
-      By = -Math.sin(phi) * amp * 0.6;
-    }
-    return { Ey, By };
-  }
-  
-  // Draw field lines
-  // B-field first (behind)
-  hCtx.beginPath();
-  hCtx.lineWidth = 1.8;
-  hCtx.strokeStyle = 'rgba(74,142,196,0.45)';
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    const x = startX + t * (endX - startX);
-    const { By } = getFields(x);
-    if (i === 0) hCtx.moveTo(x, cy + By);
-    else hCtx.lineTo(x, cy + By);
-  }
-  hCtx.stroke();
-  
-  // E-field (front)
-  hCtx.beginPath();
-  hCtx.lineWidth = 2.5;
-  hCtx.strokeStyle = 'rgba(196,93,74,0.85)';
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    const x = startX + t * (endX - startX);
-    const { Ey } = getFields(x);
-    if (i === 0) hCtx.moveTo(x, cy + Ey);
-    else hCtx.lineTo(x, cy + Ey);
-  }
-  hCtx.stroke();
-  
-  // Field vector indicators (vertical lines from axis to E curve)
-  for (let i = 0; i < 20; i++) {
-    const t = (i + 0.5) / 20;
-    const x = startX + t * (endX - startX);
-    const { Ey } = getFields(x);
-    hCtx.strokeStyle = 'rgba(196,93,74,0.18)';
-    hCtx.lineWidth = 1;
-    hCtx.beginPath();
-    hCtx.moveTo(x, cy);
-    hCtx.lineTo(x, cy + Ey);
-    hCtx.stroke();
-  }
-  
-  // Mode label
-  hCtx.font = `${12 * 2}px 'JetBrains Mono', monospace`;
-  hCtx.fillStyle = 'rgba(200,190,170,0.25)';
-  hCtx.textAlign = 'right';
-  const modeText = helixMode === 'left' ? 'LEFT CIRCULAR' : helixMode === 'right' ? 'RIGHT CIRCULAR' : 'LINEAR';
-  hCtx.fillText(modeText, endX, 40);
-  
-  // Labels
-  hCtx.textAlign = 'left';
-  hCtx.font = `${14 * 2}px 'JetBrains Mono', monospace`;
-  hCtx.fillStyle = 'rgba(196,93,74,0.6)';
-  hCtx.fillText('E', startX, cy - amp - 12);
-  hCtx.fillStyle = 'rgba(74,142,196,0.4)';
-  hCtx.fillText('B', startX, cy + amp + 28);
-  
-  requestAnimationFrame(drawHelix);
-}
-drawHelix();
-
-// Button listeners
 document.querySelectorAll('.helix-btn').forEach(btn => {
   btn.addEventListener('click', () => setHelixMode(btn.dataset.mode));
+});
+
+const helixContainer = document.getElementById('helix-3d');
+const hScene = new THREE.Scene();
+const hCamera = new THREE.PerspectiveCamera(40, helixContainer.offsetWidth / helixContainer.offsetHeight, 0.1, 100);
+const hRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+hRenderer.setSize(helixContainer.offsetWidth, helixContainer.offsetHeight);
+hRenderer.setPixelRatio(window.devicePixelRatio);
+hRenderer.setClearColor(0x08090d, 1);
+helixContainer.appendChild(hRenderer.domElement);
+
+hCamera.position.set(0, 2.2, 6.5);
+hCamera.lookAt(0, 0, 0);
+
+// Propagation axis
+const axisMat = new THREE.LineBasicMaterial({ color: 0x3a3830, transparent: true, opacity: 0.3 });
+const axisGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-5, 0, 0), new THREE.Vector3(5, 0, 0)]);
+hScene.add(new THREE.Line(axisGeo, axisMat));
+
+// Helix group (rebuilt on mode change)
+let helixGroup = new THREE.Group();
+hScene.add(helixGroup);
+
+const EColor = 0xc45d4a;
+const BColor = 0x4a8ec4;
+
+function buildHelix() {
+  // Clear old
+  while (helixGroup.children.length) {
+    const c = helixGroup.children[0];
+    if (c.geometry) c.geometry.dispose();
+    if (c.material) c.material.dispose();
+    helixGroup.remove(c);
+  }
+
+  const N = 300;
+  const turns = 4;
+  const length = 8;
+  const radius = 0.9;
+  const arrowCount = 32;
+
+  // Build E-field helix curve
+  const ePts = [];
+  const bPts = [];
+
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    const x = -length / 2 + t * length;
+    const angle = t * turns * Math.PI * 2;
+
+    let ey, ez, by, bz;
+    if (helixMode === 'linear') {
+      ey = Math.sin(angle) * radius;
+      ez = 0;
+      by = 0;
+      bz = Math.sin(angle) * radius * 0.7;
+    } else {
+      const sign = helixMode === 'left' ? 1 : -1;
+      ey = Math.sin(angle) * radius;
+      ez = Math.cos(angle) * radius * sign;
+      by = Math.cos(angle) * radius * 0.7;
+      bz = -Math.sin(angle) * radius * 0.7 * sign;
+    }
+
+    ePts.push(new THREE.Vector3(x, ey, ez));
+    bPts.push(new THREE.Vector3(x, by, bz));
+  }
+
+  // E helix line
+  const eLine = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(ePts),
+    new THREE.LineBasicMaterial({ color: EColor, transparent: true, opacity: 0.85, linewidth: 2 })
+  );
+  helixGroup.add(eLine);
+
+  // B helix line
+  const bLine = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(bPts),
+    new THREE.LineBasicMaterial({ color: BColor, transparent: true, opacity: 0.4, linewidth: 1 })
+  );
+  helixGroup.add(bLine);
+
+  // E-field arrows from axis to helix
+  const arrowMat = new THREE.LineBasicMaterial({ color: EColor, transparent: true, opacity: 0.25 });
+  for (let i = 0; i < arrowCount; i++) {
+    const t = (i + 0.5) / arrowCount;
+    const x = -length / 2 + t * length;
+    const angle = t * turns * Math.PI * 2;
+
+    let ey, ez;
+    if (helixMode === 'linear') {
+      ey = Math.sin(angle) * radius;
+      ez = 0;
+    } else {
+      const sign = helixMode === 'left' ? 1 : -1;
+      ey = Math.sin(angle) * radius;
+      ez = Math.cos(angle) * radius * sign;
+    }
+
+    const arrowGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x, 0, 0),
+      new THREE.Vector3(x, ey, ez)
+    ]);
+    helixGroup.add(new THREE.Line(arrowGeo, arrowMat));
+  }
+}
+
+buildHelix();
+
+// Slow auto-rotation
+let helixAngle = 0;
+function animateHelix() {
+  helixAngle += 0.002;
+  helixGroup.rotation.x = 0.15;
+  helixGroup.position.x = Math.sin(helixAngle * 0.5) * 0.3;
+  // Gentle oscillation of camera angle
+  hCamera.position.y = 2.2 + Math.sin(helixAngle) * 0.3;
+  hCamera.lookAt(0, 0, 0);
+  hRenderer.render(hScene, hCamera);
+  requestAnimationFrame(animateHelix);
+}
+animateHelix();
+
+window.addEventListener('resize', () => {
+  const w = helixContainer.offsetWidth;
+  const h = helixContainer.offsetHeight;
+  hCamera.aspect = w / h;
+  hCamera.updateProjectionMatrix();
+  hRenderer.setSize(w, h);
 });
 
 
@@ -1088,5 +1115,6 @@ drawMap();
 </script>
 </body>
 </html>
+
 
 
